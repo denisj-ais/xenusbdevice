@@ -57,6 +57,11 @@
   <ItemGroup>
     <PackageFiles Include="$(OutDir)\$(ProjectName)\*" />
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <DriverSign>
+      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
+    </DriverSign>
+  </ItemDefinitionGroup>
   <Target Name="Archive" AfterTargets="TestSign">
     <Copy SourceFiles="@(PackageFiles)" DestinationFiles="@(PackageFiles->'$(ArchiveDir)\%(FileName)%(Extension)')" />
   </Target>
