@@ -10,6 +10,11 @@
     <IncludeDir>..\..\include</IncludeDir>
     <SourceDir>..\..\src</SourceDir>
   </PropertyGroup>
+  <Target Name="GetProjectInfoForReference" Returns="@(ProjectInfoForReference)">
+    <ItemGroup>
+      <ProjectInfoReference Include="@(LibFullPath)" />
+    </ItemGroup>
+  </Target>
   <Target Name="Build">
     <Exec Command="powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File $(Script) $(Platform) $(SolutionDir) $(IncludeDir) $(SourceDir)" />
   </Target>
