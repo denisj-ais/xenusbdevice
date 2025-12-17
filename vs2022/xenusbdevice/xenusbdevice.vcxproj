@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\projectconfigurations.props" />
+  <Import Project="..\configs.props" />
   <PropertyGroup Label="PropertySheets">
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2FB19484-E8E7-406F-B7DC-8F7E65EB014E}</ProjectGuid>
   </PropertyGroup>
-  <Import Project="..\targetconfigurations.props" />
+  <Import Project="..\targets.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -22,18 +22,21 @@
   <PropertyGroup />
   <Import Project="..\outputpaths.props" />
   <PropertyGroup>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
     <EnableInf2cat>false</EnableInf2cat>
+    <IntDir>..\$(ProjectName)\$(ConfigurationName)\$(Platform)\</IntDir>
+    <OutDir>..\$(ConfigurationName)\$(Platform)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\include\xen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/ZH:SHA_256 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>__MODULE__="XENUSBDEVICE";POOL_NX_OPTIN=1;NT_PROCESSOR_GROUPS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\include;..\..\include\xen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>EnableAllWarnings</WarningLevel>
-      <DisableSpecificWarnings>4464;4711;4548;4820;4668;4255;5045;6001;6054;28196;30030;30029;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4061;4464;4514;4711;4548;4820;4668;4255;5045;6001;6054;28196;30030;30029;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnablePREfast>true</EnablePREfast>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <RunCodeAnalysis>true</RunCodeAnalysis>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -48,14 +51,9 @@
       <SpecifyDriverVerDirectiveVersion>true</SpecifyDriverVerDirectiveVersion>
       <EnableVerbose>true</EnableVerbose>
     </Inf>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>__i386__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Inf>
-      <Architecture>x86</Architecture>
-    </Inf>
+    <DriverSign>
+      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
+    </DriverSign>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>

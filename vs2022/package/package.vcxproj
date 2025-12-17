@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\projectconfigurations.props" />
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\configs.props" />
   <PropertyGroup Label="PropertySheets">
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Utility</ConfigurationType>
@@ -13,12 +13,12 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9B071A35-897C-477A-AEB7-95F77618A21D}</ProjectGuid>
   </PropertyGroup>
-  <Import Project="..\targetconfigurations.props" />
+  <Import Project="..\targets.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup>
     <EnableInf2cat>true</EnableInf2cat>
-    <Inf2CatWindowsVersionList Condition="'$(Platform)'=='x64'">8_x64;Server8_x64;10_x64;Server10_x64</Inf2CatWindowsVersionList>
-    <Inf2CatWindowsVersionList Condition="'$(Platform)'=='x86'">8_x86;10_x86</Inf2CatWindowsVersionList>
+    <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
+    <Inf2CatWindowsVersionList Condition="'$(Platform)'=='x64'">10_x64;Server10_x64;ServerRS5_X64;ServerFE_X64;10_CO_X64</Inf2CatWindowsVersionList>
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
     <EnableDeployment>False</EnableDeployment>
     <ImportToStore>False</ImportToStore>
@@ -32,9 +32,11 @@
     <IntDir>..\$(ProjectName)\$(ConfigurationName)\$(Platform)\</IntDir>
     <OutDir>..\$(ConfigurationName)\$(Platform)\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Platform)'=='Win32'">
-    <ArchiveDir>..\..\$(SolutionName)\x86</ArchiveDir>
-  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <DriverSign>
+      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
+    </DriverSign>
+  </ItemDefinitionGroup>
   <PropertyGroup Condition="'$(Platform)'=='x64'">
     <ArchiveDir>..\..\$(SolutionName)\x64</ArchiveDir>
   </PropertyGroup>
@@ -42,18 +44,13 @@
     <ProjectReference Include="..\xenusbdevice\xenusbdevice.vcxproj">
       <Project>{2FB19484-E8E7-406F-B7DC-8F7E65EB014E}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\xenusbdevice_coinst\xenusbdevice_coinst.vcxproj">
-      <Project>{AFC14008-D8EF-4642-9F86-64A2841797E5}</Project>
-    </ProjectReference>
   <FilesToPackage Include="..\xenusbdevice.inf" />
   </ItemGroup>
   <ItemGroup Condition="Exists('$(DPINST_REDIST)')">
-    <FilesToPackage Include="$(DPINST_REDIST)\x86\dpinst.exe" Condition="'$(Platform)'=='Win32'" />
     <FilesToPackage Include="$(DPINST_REDIST)\x64\dpinst.exe" Condition="'$(Platform)'=='x64'" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets"></ImportGroup>
   <ItemGroup>
     <PackageFiles Include="$(OutDir)\$(ProjectName)\*" />
   </ItemGroup>
