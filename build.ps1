@@ -6,6 +6,7 @@ param(
 	[Parameter(Mandatory = $true)]
 	[string]$Type,
 	[string]$Arch,
+	[string]$SignMode = "TestSign",
 	[switch]$Sdv
 )
 
@@ -20,14 +21,15 @@ Function Build {
 	)
 
 	$visualstudioversion = $Env:VisualStudioVersion
-	$solutiondir = @{ "14.0" = "vs2015"; "15.0" = "vs2017"; "16.0" = "vs2019"; }
-	$configurationbase = @{ "14.0" = "Windows 10"; "15.0" = "Windows 10"; "16.0" = "Windows 10"; }
+	$solutiondir = @{ "16.0" = "vs2019"; "17.0" = "vs2022"; }
+	$configurationbase = @{ "16.0" = "Windows 10"; "17.0" = "Windows 10"; }
 
 	$params = @{
 		SolutionDir = $solutiondir[$visualstudioversion];
 		ConfigurationBase = $configurationbase[$visualstudioversion];
 		Arch = $Arch;
-		Type = $Type
+		Type = $Type;
+		SignMode = $SignMode;
 		}
 	& ".\msbuild.ps1" @params
 	if ($LASTEXITCODE -ne 0) {
@@ -38,15 +40,16 @@ Function Build {
 
 Function SdvBuild {
 	$visualstudioversion = $Env:VisualStudioVersion
-	$solutiondir = @{ "14.0" = "vs2015"; "15.0" = "vs2017"; "16.0" = "vs2019"; }
-	$configurationbase = @{ "14.0" = "Windows 10"; "15.0" = "Windows 10"; "16.0" = "Windows 10"; }
+	$solutiondir = @{ "16.0" = "vs2019"; "17.0" = "vs2022"; }
+	$configurationbase = @{ "16.0" = "Windows 10"; "17.0" = "Windows 10"; }
 	$arch = "x64"
 
 	$params = @{
 		SolutionDir = $solutiondir[$visualstudioversion];
 		ConfigurationBase = $configurationbase[$visualstudioversion];
 		Arch = $arch;
-		Type = "sdv"
+		Type = "sdv";
+		SignMode = $SignMode
 		}
 	& ".\msbuild.ps1" @params
 }
@@ -96,7 +99,9 @@ if ([string]::IsNullOrEmpty($Env:MICRO_VERSION)) {
 }
 
 if ([string]::IsNullOrEmpty($Arch) -or $Arch -eq "x86" -or $Arch -eq "Win32") {
-	Build "x86" $Type
+	if ($Env:VisualStudioVersion -ne "17.0") {
+		Build "x86" $Type
+	}
 }
 
 if ([string]::IsNullOrEmpty($Arch) -or $Arch -eq "x64") {

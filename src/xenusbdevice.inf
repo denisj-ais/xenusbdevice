@@ -27,20 +27,16 @@ Provider=%Vendor%
 CatalogFile=xenusbdevice.cat
 DriverVer=01/01/1900,0.0.0.0
 DriverPackageDisplayName=%DiskDesc%
+PnpLockdown=1
 
 [DestinationDirs]
 DefaultDestDir=12
-CoInst_CopyFiles=11
 
 [SourceDisksNames]
 0=%DiskDesc%
 
 [SourceDisksFiles]
 xenusbdevice.sys=0,,
-xenusbdevice_coinst.dll=0,,
-
-[CoInst_CopyFiles]
-xenusbdevice_coinst_@MAJOR_VERSION@_@MINOR_VERSION@_@MICRO_VERSION@_@BUILD_NUMBER@.dll,xenusbdevice_coinst.dll
 
 [Manufacturer]
 %Vendor%=Inst,NT@INF_ARCH@
@@ -69,13 +65,6 @@ StartType=%SERVICE_DEMAND_START%
 ErrorControl=%SERVICE_ERROR_NORMAL%
 ServiceBinary=%12%\xenusbdevice.sys
 LoadOrderGroup = Extended Base
-
-[XenUsbDevice_Inst.CoInstallers]
-CopyFiles=CoInst_CopyFiles
-AddReg=CoInst_AddReg
-
-[CoInst_AddReg]
-HKR,,CoInstallers32,0x00010000,"xenusbdevice_coinst_@MAJOR_VERSION@_@MINOR_VERSION@_@MICRO_VERSION@_@BUILD_NUMBER@.dll,Entry"
 
 [Strings]
 
