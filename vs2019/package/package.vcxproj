@@ -42,9 +42,6 @@
     <ProjectReference Include="..\xenusbdevice\xenusbdevice.vcxproj">
       <Project>{2FB19484-E8E7-406F-B7DC-8F7E65EB014E}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\xenusbdevice_coinst\xenusbdevice_coinst.vcxproj">
-      <Project>{AFC14008-D8EF-4642-9F86-64A2841797E5}</Project>
-    </ProjectReference>
   <FilesToPackage Include="..\xenusbdevice.inf" />
   </ItemGroup>
   <ItemGroup Condition="Exists('$(DPINST_REDIST)')">
