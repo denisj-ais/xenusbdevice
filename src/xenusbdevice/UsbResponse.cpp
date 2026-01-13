@@ -62,12 +62,8 @@ PostProcessScratch(
     }
     if (fdoContext->ScratchPad.Status != USBD_STATUS_SUCCESS)
     {
-        // --XT-- The stalled status does not seem like an error, downgrading
-        // to a warning.
-        ULONG level = (fdoContext->ScratchPad.Status == USBD_STATUS_STALL_PID) ?
-                      TRACE_LEVEL_WARNING : TRACE_LEVEL_ERROR;
-
-        TraceEvents(level, TRACE_DPC,
+        // --XT-- The stalled status does not seem like an error, downgrading to a warning.
+        TraceEvents((fdoContext->ScratchPad.Status == USBD_STATUS_STALL_PID) ? TRACE_LEVEL_WARNING : TRACE_LEVEL_ERROR, TRACE_DPC,
                     __FUNCTION__": %s Scratch request error %x usbif %s usbd %s\n",
                     fdoContext->FrontEndPath,
                     usbdStatus,

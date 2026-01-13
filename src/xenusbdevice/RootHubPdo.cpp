@@ -868,13 +868,13 @@ HubQueueInitialize(
 
 USB_HUB_DESCRIPTOR RootHubDescriptor =
 {
-    0x09,  // bDescLength
-    0x29,  // bDescriptorType
-    0x01,  // bNbrPorts
-    0x1b,  // wHubCharacteristics ? or 0x01
-    0x00,  // bPwrOn2PwrGood
-    0x00,  // bHubContrCurrent
-    0x00,  // DeviceRemovable
+    0x09,     // bDescriptorLength
+    0x29,     // bDescriptorType
+    0x01,     // bNumberOfPorts
+    0x1b,     // wHubCharacteristics ? or 0x01
+    0x00,     // bPowerOn2PowerGood
+    0x00,     // bHubControlCurrent
+    { 0x00 }, // bRemoveAndPowerMask
 };
 
 /**
@@ -1962,10 +1962,8 @@ HubGetStatus(
                                 __FUNCTION__": Device %p clearing port feature reset status\n",
                                 hubContext->WdfDevice);
                 }
-                ULONG level = hubContext->PortFeatureChange ? TRACE_LEVEL_WARNING :
-                              TRACE_LEVEL_VERBOSE;
 
-                TraceEvents(level, TRACE_URB,
+                TraceEvents(hubContext->PortFeatureChange ? TRACE_LEVEL_WARNING : TRACE_LEVEL_VERBOSE, TRACE_URB,
                             __FUNCTION__": Device %p Port Status %x Change %x\n",
                             hubContext->WdfDevice,
                             portStatus->AsUshort16,

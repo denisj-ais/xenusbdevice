@@ -226,7 +226,7 @@ AllocateXenInterface(
     PUSB_FDO_CONTEXT fdoContext)
 {
     PXEN_INTERFACE xen = (PXEN_INTERFACE)
-                         ExAllocatePoolWithTag(NonPagedPool, sizeof(XEN_INTERFACE), XVU9);
+                         ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(XEN_INTERFACE), XVU9);
 
     if (!xen)
     {
@@ -301,11 +301,9 @@ static VOID
 XenRegisterSuspendHandler(
     IN PXEN_INTERFACE Xen)
 {
-    NTSTATUS status;
-
     Trace("====>\n");
 #if 0
-    status = XENBUS_SUSPEND(Register,
+    NTSTATUS status = XENBUS_SUSPEND(Register,
                             &Xen->SuspendInterface,
                             SUSPEND_CALLBACK_LATE,
                             ResumeCallback,
@@ -316,6 +314,8 @@ XenRegisterSuspendHandler(
     {
         TraceError("failed to register suspend handler.\n");
     }
+#else 
+    UNREFERENCED_PARAMETER(Xen);
 #endif
     Trace("<====\n");
 }
@@ -333,17 +333,21 @@ XenUnregisterSuspendHandler(
                    &Xen->SuspendInterface,
                    Xen->SuspendCallbackLate);
     Xen->SuspendCallbackLate = NULL;
+#else 
+    UNREFERENCED_PARAMETER(Xen);
 #endif
     Trace("====>\n");
 }
 
 static PMDL
 XenAllocatePage(VOID)
+#pragma warning(push)
+#pragma warning(disable: 6014) // Leaking memory 'buf'
 {
     PMDL mdl;
     PVOID buf;
 
-    buf = ExAllocatePoolWithTag(NonPagedPool, PAGE_SIZE, XVU9);
+    buf = ExAllocatePool2(POOL_FLAG_NON_PAGED, PAGE_SIZE, XVU9);
     if (buf == NULL)
     {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_DEVICE,
@@ -351,7 +355,7 @@ XenAllocatePage(VOID)
         return NULL;
     }
 
-    mdl = (PMDL)ExAllocatePoolWithTag(NonPagedPool, MmSizeOfMdl(buf, PAGE_SIZE), XVU9);
+    mdl = (PMDL)ExAllocatePool2(POOL_FLAG_NON_PAGED, MmSizeOfMdl(buf, PAGE_SIZE), XVU9);
     if (mdl == NULL)
     {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_DEVICE,
@@ -365,6 +369,7 @@ XenAllocatePage(VOID)
 
     return mdl;
 }
+#pragma warning(pop)
 
 static BOOLEAN
 XenCreateSring(
@@ -663,7 +668,7 @@ XenDeviceInit(
     status = RtlStringCbPrintfA(
                  Xen->FrontendPath,
                  sizeof(Xen->FrontendPath),
-                 "device/vusb/%d",
+                 "device/vusb/%u",
                  Xen->DeviceId);
 
     if (status != STATUS_SUCCESS)
@@ -894,7 +899,7 @@ XenDeviceInitialize(
     FRONT_RING_INIT(&Xen->Ring, Xen->Sring, PAGE_SIZE);
 
     Xen->ShadowArrayEntries = SHADOW_ENTRIES;
-    Xen->Shadows = (usbif_shadow_ex_t *)ExAllocatePoolWithTag(NonPagedPool,
+    Xen->Shadows = (usbif_shadow_ex_t *)ExAllocatePool2(POOL_FLAG_NON_PAGED,
                    sizeof(usbif_shadow_ex_t)* SHADOW_ENTRIES,
                    XVUA);
     if (!Xen->Shadows)
@@ -906,7 +911,7 @@ XenDeviceInitialize(
     }
     RtlZeroMemory(Xen->Shadows, sizeof(usbif_shadow_ex_t)* SHADOW_ENTRIES);
 
-    Xen->ShadowFreeList = (PUSHORT)ExAllocatePoolWithTag(NonPagedPool,
+    Xen->ShadowFreeList = (PUSHORT)ExAllocatePool2(POOL_FLAG_NON_PAGED,
                           sizeof(USHORT)* SHADOW_ENTRIES,
                           XVUB);
     if (!Xen->ShadowFreeList)
@@ -2312,8 +2317,8 @@ PutUrbOnRing(
                 ASSERT(indirectPagesNeeded <= MAX_INDIRECT_PAGES);
 #pragma warning(push)
 #pragma warning(disable: 28197)
-                shadow->indirectPageMemory = ExAllocatePoolWithTag(
-                                                 NonPagedPool,
+                shadow->indirectPageMemory = ExAllocatePool2(
+                                                 POOL_FLAG_NON_PAGED,
                                                  (PAGE_SIZE * indirectPagesNeeded),
                                                  XVUC);
 #pragma warning(pop)
@@ -2547,8 +2552,7 @@ PutIsoUrbOnRing(
         transferLength = Urb->UrbIsochronousTransfer.TransferBufferLength;
         numberOfPackets = Urb->UrbIsochronousTransfer.NumberOfPackets;
 
-        packetBuffer = (iso_packet_info *)  ExAllocatePoolWithTag(NonPagedPool,
-        PAGE_SIZE, XVUD);
+        packetBuffer = (iso_packet_info *)  ExAllocatePool2(POOL_FLAG_NON_PAGED, PAGE_SIZE, XVUD);
 
         if (!packetBuffer)
         {
@@ -2693,8 +2697,8 @@ PutIsoUrbOnRing(
             ASSERT(indirectPagesNeeded <= MAX_INDIRECT_PAGES);
 #pragma warning(push)
 #pragma warning(disable: 28197)
-            shadow->indirectPageMemory = ExAllocatePoolWithTag(
-                                             NonPagedPool,
+            shadow->indirectPageMemory = ExAllocatePool2(
+                                             POOL_FLAG_NON_PAGED,
                                              (PAGE_SIZE * indirectPagesNeeded),
                                              XVUE);
 #pragma warning(pop)

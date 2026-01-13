@@ -1300,7 +1300,7 @@ RootHubIfGetExtendedHubInformation (
     hubInfo->Port[0].PortAttributes = USB_PORTATTR_SHARED_USB2; // @todo anything else here?
     hubInfo->Port[0].PidOverride = 0;
     hubInfo->Port[0].VidOverride = 0;
-    *LengthOfDataCopied = FIELD_OFFSET(USB_EXTHUB_INFORMATION_0, Port[0]); // length of valid data.
+    *LengthOfDataCopied = (ULONG)FIELD_OFFSET(USB_EXTHUB_INFORMATION_0, Port[0]); // length of valid data.
     return STATUS_SUCCESS;
 }
 
@@ -1986,10 +1986,7 @@ RootHubIfFpAllocateWorkItem(
     _In_opt_ PDEVICE_OBJECT Pdo)
 {
     ULONG workItemSize = IoSizeofWorkItem();
-    PIO_WORKITEM workitem = (PIO_WORKITEM) ExAllocatePoolWithTag(
-                                NonPagedPoolNx,
-                                workItemSize,
-                                XVUG);
+    PIO_WORKITEM workitem = (PIO_WORKITEM) ExAllocatePool2(POOL_FLAG_NON_PAGED, workItemSize, XVUG);
 
     TraceEvents(TRACE_LEVEL_VERBOSE, TRACE_DEVICE,
                 __FUNCTION__": Pdo %p\n",
@@ -2091,8 +2088,8 @@ ProcessIrpWorkItem(
 PIRP_WORK_ITEM
 AllocateIrpWorkItem()
 {
-    PIRP_WORK_ITEM irpItem =  (PIRP_WORK_ITEM) ExAllocatePoolWithTag(NonPagedPool,
-                              sizeof(IRP_WORK_ITEM), XVUH);
+    PIRP_WORK_ITEM irpItem =  (PIRP_WORK_ITEM) ExAllocatePool2(POOL_FLAG_NON_PAGED,
+        sizeof(IRP_WORK_ITEM), XVUH);
     if (irpItem)
     {
         RtlZeroMemory(irpItem, sizeof(IRP_WORK_ITEM));

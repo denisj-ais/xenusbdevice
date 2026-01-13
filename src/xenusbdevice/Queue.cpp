@@ -444,7 +444,7 @@ AllocAndQueryPropertyString(
     }
     // C6102		Using '*ResultLength' from failed function call.
 #pragma warning(suppress: 6102)
-    buffer = (PWCHAR) ExAllocatePoolWithTag(PagedPool, *ResultLength, '2UVX');
+    buffer = (PWCHAR) ExAllocatePool2(POOL_FLAG_PAGED, *ResultLength, '2UVX');
     if (!buffer)
     {
         return NULL;

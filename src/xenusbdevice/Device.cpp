@@ -1454,7 +1454,7 @@ InitScratchpad(
     NTSTATUS status;
     KeInitializeEvent(&fdoContext->ScratchPad.CompletionEvent, NotificationEvent, FALSE);
 
-    fdoContext->ScratchPad.Buffer = ExAllocatePoolWithTag(NonPagedPool, PAGE_SIZE, XVU1);
+    fdoContext->ScratchPad.Buffer = ExAllocatePool2(POOL_FLAG_NON_PAGED, PAGE_SIZE, XVU1);
     if (!fdoContext->ScratchPad.Buffer)
     {
         status =  STATUS_NO_MEMORY;

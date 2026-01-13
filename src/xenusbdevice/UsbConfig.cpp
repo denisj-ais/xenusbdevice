@@ -125,14 +125,10 @@ static VOID
 TraceScratchStatus(IN PUSB_FDO_CONTEXT fdoContext,
                    IN CONST CHAR *function)
 {
-    // --XT-- The stalled status does not seem like an error, downgrading
-    // to a warning.
-    ULONG level = (fdoContext->ScratchPad.Status == USBD_STATUS_STALL_PID) ?
-                  TRACE_LEVEL_WARNING : TRACE_LEVEL_ERROR;
-
-    TraceEvents(level, TRACE_DEVICE, "%s: %s usb status %x returned\n",
-                function, fdoContext->FrontEndPath,
-                fdoContext->ScratchPad.Status);
+    // --XT-- The stalled status does not seem like an error, downgrading to a warning.
+    TraceEvents((fdoContext->ScratchPad.Status == USBD_STATUS_STALL_PID) ? TRACE_LEVEL_WARNING : TRACE_LEVEL_ERROR, TRACE_DEVICE,
+        "%s: %s usb status %x returned\n", function, fdoContext->FrontEndPath, fdoContext->ScratchPad.Status
+    );
 }
 
 NTSTATUS
@@ -543,8 +539,8 @@ GetDeviceDescriptor(
         //
         // allocate the array of config data based on the device descriptor
         //
-        fdoContext->ConfigData = (PUSB_CONFIG_INFO) ExAllocatePoolWithTag(
-                                     NonPagedPool,
+        fdoContext->ConfigData = (PUSB_CONFIG_INFO) ExAllocatePool2(
+                                     POOL_FLAG_NON_PAGED,
                                      fdoContext->DeviceDescriptor.bNumConfigurations * sizeof(USB_CONFIG_INFO),
                                      XVU3);
         if (!fdoContext->ConfigData)
@@ -724,7 +720,7 @@ GetAllConfigDescriptors(
                     // need to offset bConfigurationValue
                     //
                     status = SetCurrentConfiguration(fdoContext,
-                                                     defaultDesc->bConfigurationValue + fdoContext->CurrentConfigOffset);
+                                                     (UCHAR)(defaultDesc->bConfigurationValue + fdoContext->CurrentConfigOffset));
                 }
                 else
                 {
@@ -743,7 +739,7 @@ GetAllConfigDescriptors(
 UCHAR CurrentConfigValue(
     IN PUSB_FDO_CONTEXT fdoContext)
 {
-    return (fdoContext->CurrentConfigValue - fdoContext->CurrentConfigOffset);
+    return (UCHAR)(fdoContext->CurrentConfigValue - fdoContext->CurrentConfigOffset);
 }
 
 PUSB_CONFIGURATION_DESCRIPTOR
@@ -1162,7 +1158,7 @@ GetCompleteConfigDescriptor(
         ExFreePool(configInfo->m_configurationDescriptor);
     }
     configInfo->m_configurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)
-                                            ExAllocatePoolWithTag(NonPagedPool, length, XVU4);
+                                            ExAllocatePool2(POOL_FLAG_NON_PAGED, length, XVU4);
     if (!configInfo->m_configurationDescriptor)
     {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_DEVICE,
@@ -1209,7 +1205,7 @@ GetCompleteConfigDescriptor(
     // allocate interface pointers and pipe_descriptor pointers
     //
     configInfo->m_interfaceDescriptors = (PUSB_INTERFACE_DESCRIPTOR *)
-                                         ExAllocatePoolWithTag(NonPagedPool,
+                                         ExAllocatePool2(POOL_FLAG_NON_PAGED,
                                                  (configInfo->m_numInterfaces * sizeof(PUSB_INTERFACE_DESCRIPTOR *)),
                                                  XVU5);
     if (!configInfo->m_interfaceDescriptors)
@@ -1230,7 +1226,7 @@ GetCompleteConfigDescriptor(
     if (configInfo->m_numEndpoints)
     {
         configInfo->m_pipeDescriptors = (PIPE_DESCRIPTOR *)
-                                        ExAllocatePoolWithTag(NonPagedPool,
+                                        ExAllocatePool2(POOL_FLAG_NON_PAGED,
                                                 (configInfo->m_numEndpoints * sizeof(PIPE_DESCRIPTOR)),
                                                 XVU6);
         if (!configInfo->m_pipeDescriptors)
@@ -1616,8 +1612,7 @@ GetOsDescriptorString(
             break;
         }
 
-        USHORT length = (compatIds->header.bCount * (USHORT) sizeof(OS_COMPATID_FUNCTION)) +
-                        (USHORT) sizeof(OS_FEATURE_HEADER);
+        USHORT length = (USHORT)((compatIds->header.bCount * sizeof(OS_COMPATID_FUNCTION)) + sizeof(OS_FEATURE_HEADER));
         if (length != compatIds->header.dwLength)
         {
             TraceEvents(TRACE_LEVEL_ERROR, TRACE_DEVICE,
@@ -1704,7 +1699,7 @@ GetOsDescriptorString(
             Status = STATUS_UNSUCCESSFUL;
             break;
         }
-        fdoContext->CompatIds = (POS_COMPAT_ID) ExAllocatePoolWithTag(NonPagedPool,
+        fdoContext->CompatIds = (POS_COMPAT_ID) ExAllocatePool2(POOL_FLAG_NON_PAGED,
                                 length,
                                 XVU7);
         if (!fdoContext->CompatIds)
@@ -1770,7 +1765,7 @@ GetString(
     UCHAR index)
 {
     PUSB_STRING uString =
-        (PUSB_STRING) ExAllocatePoolWithTag(NonPagedPool, sizeof(USB_STRING), XVU8);
+        (PUSB_STRING) ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(USB_STRING), XVU8);
     if (!uString)
     {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_DEVICE,
